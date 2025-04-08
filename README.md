@@ -1,3 +1,2 @@
 # ros_learning
-annie's ros learning repo!
-hi
+# annie's ros learning repo!
