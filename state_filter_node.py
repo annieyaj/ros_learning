@@ -5,20 +5,15 @@ from std_msgs.msg import Float64MultiArray
 class StateFilterNode(Node):
     def __init__(self):
         super().__init__('state_filter_node')
-        self.publisher_ = self.create_publisher(Float64MultiArray, '/six_dim_state', 10)
-        self.subscription = self.create_subscription(
-            Float64MultiArray,
-            '/seven_dim_state',
-            self.callback,
-            10
-        )
-        self.get_logger().info('StateFilterNode started.')
+        self.sub = self.create_subscription(
+            Float64MultiArray, '/state7d', self.listener_callback, 10)
+        self.pub = self.create_publisher(Float64MultiArray, '/state6d', 10)
 
-    def callback(self, msg):
-        # Remove the yaw (ψ), which is the 7th element in the state
+    def listener_callback(self, msg):
+        # Extract first 6 elements (x, y, z, dx, dy, dz)
         filtered_msg = Float64MultiArray()
-        filtered_msg.data = msg.data[:6]  # Keep only [x, y, z, ẋ, ẏ, ż]
-        self.publisher_.publish(filtered_msg)
+        filtered_msg.data = msg.data[:6]
+        self.pub.publish(filtered_msg)
 
 def main(args=None):
     rclpy.init(args=args)
@@ -26,3 +21,6 @@ def main(args=None):
     rclpy.spin(node)
     node.destroy_node()
     rclpy.shutdown()
+
+if __name__ == '__main__':
+    main()
